@@ -60,13 +60,17 @@ function showTriangle() {
     const vertices = new Float32Array([
         -0.9, -0.9, 0.0,
         0.85, -0.9, 0.0,
-        -0.9, 0.85, 0.0,
+        -0.9, 0.85, 0.0
+    ]);
+    const vertices2 = new Float32Array([
+        -0.85, 0.9, 0.0,
+        0.9, 0.9, 0.0,
+        0.9, -0.85, 0.0
     ]);
 
     const vbo = gl.createBuffer();
 
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
     const vertexPositionAttributeLocation = gl.getAttribLocation(TriangleProgram, 'vertexPosition');
     if (vertexPositionAttributeLocation < 0) {
@@ -83,7 +87,13 @@ function showTriangle() {
     gl.clearColor(0.08, 0.08, 0.08, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.viewport(0, 0, canvas.width, canvas.height);
+
+    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
+    
+    gl.bufferData(gl.ARRAY_BUFFER, vertices2, gl.STATIC_DRAW);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    
 }
 try {
   showTriangle();

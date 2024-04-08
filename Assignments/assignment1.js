@@ -1,5 +1,5 @@
 function showTriangle() {
-    //set a canvas
+    
     const canvas = document.getElementById('demo-canvas');
     const gl = canvas.getContext('webgl2');
     if (!gl) {
@@ -12,7 +12,7 @@ function showTriangle() {
         }
         return;
     }
-    //create vertex shaer
+    
     const vertexShaderSourceCode = `#version 300 es
     precision mediump float;
 
@@ -30,7 +30,6 @@ function showTriangle() {
         showError(`Failed to compile vertex shader: ${errorMessage}`);
         return;
     }
-    //create fragment shader
     const fragmentShaderSourceCode = `#version 300 es
     precision mediump float;
 
@@ -48,7 +47,6 @@ function showTriangle() {
         showError(`Failed to compile fragment shader: ${errorMessage}`);
         return;
     }
-    //When using WebGL, we alwys combine Vertex and Fragment shaders together and make WebGL program
     const TriangleProgram = gl.createProgram();
     gl.attachShader(TriangleProgram, vertexShader);
     gl.attachShader(TriangleProgram, fragmentShader);
@@ -63,42 +61,33 @@ function showTriangle() {
         -0.9, -0.9, 0.0,
         0.85, -0.9, 0.0,
         -0.9, 0.85, 0.0,
+
+        -0.85, 0.9, 0.0,
+        0.9, 0.9, 0.0,
+        0.9, -0.85, 0.0,
     ]);
 
-    //Create a Buffer Object containting the vertices thus names"Vertex Buffer Object" in OpenGL
     const vbo = gl.createBuffer();
 
-    //Binding the data means to set the ata so that it can be used by the GPU
     gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
     gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
-    //Attribute location allow us to talk about whihc shaer input should read from 
-    //whichGPU buffer in the later "vertexAttribPonter" call.
     const vertexPositionAttributeLocation = gl.getAttribLocation(TriangleProgram, 'vertexPosition');
     if (vertexPositionAttributeLocation < 0) {
         showError(`Failed to get attribute location for vertexPosition`);
         return;
     }
 
-    //Set up GPU program
     gl.useProgram(TriangleProgram);
     gl.enableVertexAttribArray(vertexPositionAttributeLocation);
     
-    //Input assembler(how to read the data from the buffer)
-    gl.vertexAttribPointer( vertexPositionAttributeLocation, /* Index vertex attribute position */
-        3, /*size: number of components in the attribute*/
-        gl.FLOAT, /*type: type of data in the GPU buffer for this attribute */
-        false, /*normalize or not */
-        3* Float32Array.BYTES_PER_ELEMENT, 0);
-    //Output merger
+    gl.vertexAttribPointer( vertexPositionAttributeLocation,3,gl.FLOAT,false,3* Float32Array.BYTES_PER_ELEMENT, 0);
     canvas.width = canvas.clientWidth;
     canvas.height = canvas.clientHeight;
     gl.clearColor(0.08, 0.08, 0.08, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    //Rasterizer
     gl.viewport(0, 0, canvas.width, canvas.height);
-    //Draw call
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.drawArrays(gl.TRIANGLES, 0, 6);
 }
 try {
   showTriangle();
