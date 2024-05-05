@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { bool } from 'three/examples/jsm/nodes/Nodes.js';
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -20,7 +19,7 @@ const trainBoxMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
 const trainBoxMesh = new THREE.Mesh(trainBox, trainBoxMaterial);
 trainBoxMesh.position.set(0, 0.5, -1.5);
 
-const wheel1 = new THREE.TorusGeometry(0.2, 0.1);
+const wheel1 = new THREE.TorusGeometry(0.2, 0.1, 32, 8);
 const wheel1Material = new THREE.MeshPhongMaterial({ color: 0xAAAAAA });
 const wheel1Mesh = new THREE.Mesh(wheel1, wheel1Material);
 wheel1Mesh.position.set(0.75, -0.25, 0);
@@ -39,12 +38,12 @@ const wheel4Mesh = new THREE.Mesh(wheel1, wheel1Material);
 wheel4Mesh.position.set(-0.75, -0.25, 0);
 wheel4Mesh.rotation.setFromVector3(wheelEulerRotation);
 
-const bigWheel = new THREE.TorusGeometry(0.4, 0.2);
+const bigWheel = new THREE.TorusGeometry(0.4, 0.2,32,8);
 const bigWheelMesh = new THREE.Mesh(bigWheel, wheel1Material);
 bigWheelMesh.position.set(1, 0, -1.5);
 bigWheelMesh.rotation.setFromVector3(wheelEulerRotation);
 
-const big2Wheel = new THREE.TorusGeometry(0.4, 0.2);
+const big2Wheel = new THREE.TorusGeometry(0.4, 0.2,32,8);
 const bigWheel2Mesh = new THREE.Mesh(big2Wheel, wheel1Material);
 bigWheel2Mesh.position.set(-1, 0, -1.5);
 bigWheel2Mesh.rotation.setFromVector3(wheelEulerRotation);
@@ -59,18 +58,18 @@ const chimneyMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
 const chimneyMesh = new THREE.Mesh(chimney, chimneyMaterial);
 chimneyMesh.position.set(0, 1, 0.5);
 
-const axesHelper = new THREE.AxesHelper(5); // Length of the axes
+const axesHelper = new THREE.AxesHelper(5);
 scene.add(axesHelper);
 
-const gridHelper = new THREE.GridHelper(10, 10); // Size of the grid
 scene.add(gridHelper);
+
 const ambientLight = new THREE.AmbientLight(0xffffff, 2);
 scene.add(ambientLight);
 const pointLight = new THREE.PointLight(0xffffff, 2);
 pointLight.position.set(10, 10, 10);
 scene.add(pointLight);
-camera.position.set(5, 2, 3);
-camera.lookAt(0, 0, 0);
+camera.position.set(0 , 10, 10);
+camera.lookAt(0, 5, 0);
 
 const group = new THREE.Group();
 group.add(trainBodyMesh);
@@ -85,19 +84,52 @@ group.add(glass);
 group.add(chimneyMesh);
 scene.add(group);
 
+const points = [
+    new THREE.Vector3(-10, 0, 0),
+    new THREE.Vector3(0, 10, 0),
+    new THREE.Vector3(10, 0, 0)
+];
+
+let currentSegment = 0;
+const speed = 0.1;
+let cube_direction = 1; 
 function group_animation() {
-    var movement = 0.01;
-    if(group.position.z >= 3 || group.position.z <= -3){
-        movement = -movement;
+    wheel1Mesh.rotation.z += 0.1;
+    wheel2Mesh.rotation.z += 0.1;
+    wheel3Mesh.rotation.z += 0.1;
+    wheel4Mesh.rotation.z += 0.1;
+    bigWheelMesh.rotation.z += 0.1;
+    bigWheel2Mesh.rotation.z += 0.1;
+
+    if (group.position.distanceTo(points[currentSegment]) < 0.25) {
+        currentSegment = (currentSegment + 1) % points.length;
+        cube_direction *= (-1);
     }
-    group.position.z += movement;
+    const targetPosition = points[currentSegment];
+    const direction = new THREE.Vector3().subVectors(targetPosition, group.position).normalize();
+    
+    group.position.addScaledVector(direction, speed);
+
+    group.lookAt(targetPosition);
+
+    if(currentSegment%3 == 0){
+        camera.position.set(group.position.x , group.position.y + 10, group.position.z + 10);
+        camera.lookAt(group.position);
+    }
+    else if(currentSegment % 3 == 1) {
+        camera.position.set(points[1].x, points[1].y, points[1].z);
+        camera.lookAt(points[0]);
+    }
+    else {
+        camera.position.set(points[1].x, points[1].y, points[1].z);
+        camera.lookAt(points[2]);
+    }    
 }
-// Animation
+
 function animate() {
     requestAnimationFrame(animate);
     group_animation();
     renderer.render(scene, camera);
 }
 
-// Start animation
 animate();
