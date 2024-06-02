@@ -1,135 +1,159 @@
 import * as THREE from 'three';
 
+// Setup scene
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0xffffff);
 document.body.appendChild(renderer.domElement);
-scene.background = new THREE.Color(0xffffff);
-
-const trainBody = new THREE.CylinderGeometry(0.7,0.7,2);
-const trainBodyMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-const trainBodyMesh = new THREE.Mesh(trainBody, trainBodyMaterial);
-const eulerRotation = new THREE.Euler(Math.PI / 2, 0, 0);
-trainBodyMesh.position.set(0, 0.075, 0);
-trainBodyMesh.rotation.setFromVector3(eulerRotation);
-
-const trainBox = new THREE.BoxGeometry(1.5, 2, 1.5);
-const trainBoxMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
-const trainBoxMesh = new THREE.Mesh(trainBox, trainBoxMaterial);
-trainBoxMesh.position.set(0, 0.5, -1.5);
-
-const wheel1 = new THREE.TorusGeometry(0.2, 0.1, 32, 8);
-const wheel1Material = new THREE.MeshPhongMaterial({ color: 0xAAAAAA });
-const wheel1Mesh = new THREE.Mesh(wheel1, wheel1Material);
-wheel1Mesh.position.set(0.75, -0.25, 0);
-const wheelEulerRotation = new THREE.Euler(0,Math.PI / 2, 0);
-wheel1Mesh.rotation.setFromVector3(wheelEulerRotation);
-
-const wheel2Mesh = new THREE.Mesh(wheel1, wheel1Material);
-wheel2Mesh.position.set(0.75, -0.25, 0.7);
-wheel2Mesh.rotation.setFromVector3(wheelEulerRotation);
-
-const wheel3Mesh = new THREE.Mesh(wheel1, wheel1Material);
-wheel3Mesh.position.set(-0.75, -0.25, 0.7);
-wheel3Mesh.rotation.setFromVector3(wheelEulerRotation);
-
-const wheel4Mesh = new THREE.Mesh(wheel1, wheel1Material);
-wheel4Mesh.position.set(-0.75, -0.25, 0);
-wheel4Mesh.rotation.setFromVector3(wheelEulerRotation);
-
-const bigWheel = new THREE.TorusGeometry(0.4, 0.2,32,8);
-const bigWheelMesh = new THREE.Mesh(bigWheel, wheel1Material);
-bigWheelMesh.position.set(1, 0, -1.5);
-bigWheelMesh.rotation.setFromVector3(wheelEulerRotation);
-
-const big2Wheel = new THREE.TorusGeometry(0.4, 0.2,32,8);
-const bigWheel2Mesh = new THREE.Mesh(big2Wheel, wheel1Material);
-bigWheel2Mesh.position.set(-1, 0, -1.5);
-bigWheel2Mesh.rotation.setFromVector3(wheelEulerRotation);
-
-const glassWindow = new THREE.SphereGeometry(0.4,32,32,0,2*Math.PI,0,Math.PI/2);
-const glassWindowMaterial = new THREE.MeshPhongMaterial({ color: 0xa5e5ff });
-const glass = new THREE.Mesh(glassWindow, glassWindowMaterial);
-glass.position.set(0, 0.85, -0.75);
-
-const chimney = new THREE.CylinderGeometry(0.4,0.2,0.5);
-const chimneyMaterial = new THREE.MeshPhongMaterial({ color: 0x000000 });
-const chimneyMesh = new THREE.Mesh(chimney, chimneyMaterial);
-chimneyMesh.position.set(0, 1, 0.5);
 
 const axesHelper = new THREE.AxesHelper(5);
 scene.add(axesHelper);
-
+const gridHelper = new THREE.GridHelper(30, 30);
 scene.add(gridHelper);
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 2);
 scene.add(ambientLight);
-const pointLight = new THREE.PointLight(0xffffff, 2);
-pointLight.position.set(10, 10, 10);
-scene.add(pointLight);
-camera.position.set(0 , 10, 10);
-camera.lookAt(0, 5, 0);
 
-const group = new THREE.Group();
-group.add(trainBodyMesh);
-group.add(trainBoxMesh);
-group.add(wheel1Mesh);
-group.add(wheel2Mesh);
-group.add(wheel3Mesh);
-group.add(wheel4Mesh);
-group.add(bigWheelMesh);
-group.add(bigWheel2Mesh);
-group.add(glass);
-group.add(chimneyMesh);
-scene.add(group);
+// Add a directional light to see the rotation of wheel
+const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+directionalLight.position.set(1, 2, 0)
+scene.add(directionalLight);
 
+camera.position.set(0, 5, 0);
+camera.lookAt(0, 0, 0);
+
+//Setup groups
+const trainGroup = new THREE.Group();
+const frontWheelGroup = new THREE.Group();
+const centerWheelGroup = new THREE.Group();
+const rearWheelGroup = new THREE.Group();
+scene.add(trainGroup);
+trainGroup.add(frontWheelGroup);
+trainGroup.add(centerWheelGroup);
+trainGroup.add(rearWheelGroup);
+
+//Setup the body of train
+const rotationAngle = Math.PI / 2;
+
+const boxGeometry = new THREE.BoxGeometry(1, 1.5, 1);
+const boxMaterial = new THREE.MeshPhongMaterial({ color: 0x191970, shininess: 80 }); 
+
+// Adjust shininess
+const box = new THREE.Mesh(boxGeometry, boxMaterial);
+trainGroup.add(box);
+
+const coneGeometry = new THREE.ConeGeometry(0.3, 0.4, 32);
+const coneMaterial = new THREE.MeshPhongMaterial({ color: 0x00ffff, shininess: 80 }); 
+
+// Adjust shininess
+const cone = new THREE.Mesh(coneGeometry, coneMaterial);
+cone.position.set(0, 0.3, -1.5); 
+cone.rotation.set(Math.PI,0,0)
+trainGroup.add(cone);
+
+const cylindergeometry = new THREE.CylinderGeometry( 0.5, 0.5, 2); 
+const cylinderMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000, shininess: 80 });
+const cylinder = new THREE.Mesh( cylindergeometry, cylinderMaterial ); 
+cylinder.rotation.set( Math.PI / 2,0,0);
+cylinder.position.set(0,-0.25,-1)
+trainGroup.add( cylinder );
+
+const geometry = new THREE.SphereGeometry( 0.3, 32, 16,0,3.14,0,1.57 ); 
+const material = new THREE.MeshBasicMaterial( { color:    0xADD8E6 } ); 
+const sphere = new THREE.Mesh( geometry, material ); 
+sphere.position.set(0,0.3,-0.5);
+trainGroup.add( sphere );
+
+//Setup the Wheels of train
+const wheelGeometry = new THREE.TorusGeometry(0.15, 0.08, 7, 9, 5.5);
+const bigwheel = new THREE.TorusGeometry(0.3,0.15, 7, 9, 5.5);
+const wheelMaterial = new THREE.MeshPhongMaterial({ color: 0xAAAAAA ,reflectivity : 0, shininess: 30});
+
+//Front Wheels
+const wheel1 = new THREE.Mesh(wheelGeometry, wheelMaterial); 
+const wheel2 = new THREE.Mesh(wheelGeometry, wheelMaterial);
+frontWheelGroup.add(wheel1); 
+frontWheelGroup.add(wheel2);
+frontWheelGroup.position.set(0, -0.5, -1.8);
+wheel1.position.set(-0.5, 0, 0); 
+wheel2.position.set(0.5, 0, 0);
+wheel1.rotation.y += rotationAngle; 
+wheel2.rotation.y += rotationAngle;
+//Center Wheels
+const wheel3 = new THREE.Mesh(wheelGeometry, wheelMaterial); 
+const wheel4 = new THREE.Mesh(wheelGeometry, wheelMaterial);
+centerWheelGroup.add(wheel3); 
+centerWheelGroup.add(wheel4);
+centerWheelGroup.position.set(0, -0.5, -1.3);
+wheel3.position.set(-0.5, 0, 0); 
+wheel4.position.set(0.5, 0, 0);
+wheel3.rotation.y += rotationAngle; 
+wheel4.rotation.y += rotationAngle;
+//Rear Wheels
+const wheel5 = new THREE.Mesh(bigwheel, wheelMaterial); 
+const wheel6 = new THREE.Mesh(bigwheel, wheelMaterial);
+rearWheelGroup.add(wheel5); 
+rearWheelGroup.add(wheel6);
+rearWheelGroup.position.set(0, -0.5, 0.1);
+wheel5.position.set(-0.5, 0, 0); 
+wheel6.position.set(0.5, 0, 0);
+wheel5.rotation.y += rotationAngle; 
+wheel6.rotation.y += rotationAngle;
+
+// Define points and initial velocities
 const points = [
     new THREE.Vector3(-10, 0, 0),
     new THREE.Vector3(0, 10, 0),
-    new THREE.Vector3(10, 0, 0)
+    new THREE.Vector3(10, 0, 0),
 ];
 
 let currentSegment = 0;
-const speed = 0.1;
-let cube_direction = 1; 
+const speed = 0.25;
+let cone_direction = 1;
+
 function group_animation() {
-    wheel1Mesh.rotation.z += 0.1;
-    wheel2Mesh.rotation.z += 0.1;
-    wheel3Mesh.rotation.z += 0.1;
-    wheel4Mesh.rotation.z += 0.1;
-    bigWheelMesh.rotation.z += 0.1;
-    bigWheel2Mesh.rotation.z += 0.1;
-
-    if (group.position.distanceTo(points[currentSegment]) < 0.25) {
+    // Move train along a piece of the path
+    if (trainGroup.position.distanceTo(points[currentSegment]) < 0.25) {
         currentSegment = (currentSegment + 1) % points.length;
-        cube_direction *= (-1);
+        cone_direction *= (-1);
     }
+    //Setting the targetPotision to move
     const targetPosition = points[currentSegment];
-    const direction = new THREE.Vector3().subVectors(targetPosition, group.position).normalize();
-    
-    group.position.addScaledVector(direction, speed);
 
-    group.lookAt(targetPosition);
+    //calculate the direction vector by subtract targetPosition vector
+    //and cube position vector and normalize it.
+    const direction = new THREE.Vector3().subVectors(targetPosition, trainGroup.position).normalize();
 
-    if(currentSegment%3 == 0){
-        camera.position.set(group.position.x , group.position.y + 10, group.position.z + 10);
-        camera.lookAt(group.position);
-    }
-    else if(currentSegment % 3 == 1) {
+    //move the group with direction and speed.
+    trainGroup.position.addScaledVector(direction, speed);
+
+    //rotate the wheels
+    frontWheelGroup.rotation.x += 0.5; 
+    centerWheelGroup.rotation.x += 0.5; 
+    rearWheelGroup.rotation.x += 0.5; 
+
+    //extra animation of cone
+    cone.position.y = cone.position.y +  (0.0007 * cone_direction);
+    //Setting the direction of train and camera
+    const lookAtTarget = new THREE.Vector3().addVectors(trainGroup.position, direction.multiplyScalar(-1));
+    trainGroup.lookAt(lookAtTarget);
+
+    if(currentSegment%3 == 0)
+        camera.position.set(trainGroup.position.x , trainGroup.position.y + 10, trainGroup.position.z + 10);
+    else if(currentSegment % 3 == 1) 
         camera.position.set(points[1].x, points[1].y, points[1].z);
-        camera.lookAt(points[0]);
-    }
-    else {
+    else 
         camera.position.set(points[1].x, points[1].y, points[1].z);
-        camera.lookAt(points[2]);
-    }    
+    camera.lookAt(trainGroup.position);
 }
-
+// Animation
 function animate() {
     requestAnimationFrame(animate);
     group_animation();
     renderer.render(scene, camera);
 }
 
+// Start animation
 animate();
