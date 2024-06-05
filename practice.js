@@ -3,11 +3,11 @@ import * as THREE from 'three';
 let scene, camera, renderer;
 let raycaster, mouse;
 let selectedObject = null;
-let movingObject = null; // To keep track of the moving object
-let direction = 1; // 1 means moving up, -1 means moving down
+let movingObject = null;
+let direction = 1;
 let score = 0;
 let gameOver = false;
-let remainingTime = 60; // 1 minute in seconds
+let remainingTime = 60;
 
 scene = new THREE.Scene();
 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -34,7 +34,6 @@ const bottomBox = new THREE.Mesh(bottomBoxGeo, bottomBoxMat);
 bottomBox.position.set(0, -3, 0);
 scene.add(bottomBox);
 
-// Create 9 boxes in a 3x3 grid
 const geometry = new THREE.CapsuleGeometry(0.8, 2, 3, 7);
 const gridSize = 3;
 const boxSpacing = 3;
@@ -50,7 +49,7 @@ for (let i = 0; i < gridSize; i++) {
             (j - 1) * boxSpacing
         );
         box.clickable = true;
-        box.originalColor = 0xECB365; // Store the original color
+        box.originalColor = 0xECB365;
         objects.push(box);
         scene.add(box);
     }
@@ -76,16 +75,13 @@ for (let i = 0; i < gridSize; i++) {
 camera.position.set(7, 10, 7);
 camera.lookAt(0, 0, 0);
 
-// Set up raycaster and mouse vector
 raycaster = new THREE.Raycaster();
 mouse = new THREE.Vector2();
 
-// Add event listeners for mouse interactions
 window.addEventListener('mousedown', onMouseClick, false);
 
 let speed = 0.05;
 
-// Timer to update the remaining time every second and increase speed every 10 seconds
 function updateTimer() {
     if (remainingTime > 0) {
         remainingTime--;
@@ -104,7 +100,6 @@ function animate() {
     requestAnimationFrame(animate);
     if (!gameOver) {
         if (movingObject === null) {
-            // Select a random object to move
             let randomIndex = Math.floor(Math.random() * objects.length);
             movingObject = objects[randomIndex];
         }
@@ -112,22 +107,20 @@ function animate() {
 
     if (movingObject != null) {
         if (!movingObject.clickable) {
-            direction = -1; // If not clickable, move down
+            direction = -1;
         }
 
         movingObject.position.y += speed * direction;
 
-        // Check if the object has reached or exceeded -0.5 to change direction to down
         if (movingObject.position.y >= -0.5) {
             direction = -1;
         }
 
-        // Check if the object has reached or gone below -2.5 to change direction to up
         if (movingObject.position.y <= -2.5) {
             direction = 1;
             movingObject.material.color.set(movingObject.originalColor);
             movingObject.clickable = true;
-            movingObject = null; // Allow another object to be selected
+            movingObject = null;
         }
     }
 
@@ -144,15 +137,12 @@ function animate() {
 function onMouseClick(event) {
     event.preventDefault();
 
-    // Update mouse position
     if (!gameOver) {
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
-        // Update the raycaster with the camera and mouse position
         raycaster.setFromCamera(mouse, camera);
 
-        // Check for intersections with objects
         const intersects = raycaster.intersectObjects(objects);
 
         if (intersects.length > 0) {
@@ -168,7 +158,6 @@ function onMouseClick(event) {
     }
 }
 
-// Create and display the timer
 const timerElement = document.createElement('div');
 timerElement.id = 'timer';
 timerElement.style.position = 'absolute';
@@ -182,7 +171,6 @@ timerElement.style.padding = '10px';
 timerElement.style.color = '#fff';
 document.body.appendChild(timerElement);
 
-// Create and display the score
 const scoreElement = document.createElement('div');
 scoreElement.id = 'score';
 scoreElement.style.position = 'absolute';
@@ -196,5 +184,5 @@ scoreElement.style.padding = '10px';
 scoreElement.style.color = '#fff';
 document.body.appendChild(scoreElement);
 
-updateTimer(); // Start the timer
-animate(); // Start the animation loop
+updateTimer();
+animate();
