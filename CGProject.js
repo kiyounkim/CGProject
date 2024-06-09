@@ -97,6 +97,7 @@ function updateTimer() {
 
 function animate() {
     document.getElementById('score').innerText = `Score: ${score}`;
+    
     requestAnimationFrame(animate);
     if (!gameOver) {
         if (movingObject === null) {
@@ -106,15 +107,9 @@ function animate() {
     }
 
     if (movingObject != null) {
-        if (!movingObject.clickable) {
-            direction = -1;
-        }
-
+        if (!movingObject.clickable) direction = -1;
         movingObject.position.y += speed * direction;
-
-        if (movingObject.position.y >= -0.5) {
-            direction = -1;
-        }
+        if (movingObject.position.y >= -0.5) direction = -1;
 
         if (movingObject.position.y <= -2.5) {
             direction = 1;
