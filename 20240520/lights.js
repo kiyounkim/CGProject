@@ -77,7 +77,9 @@ window.addEventListener('keydown', function (event) {
     spotLight.visible = !spotLight.visible;
     break;
     }
-    });
+    }
+);
+
     // Animation loop
     function animate() {
     requestAnimationFrame(animate);
